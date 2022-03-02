@@ -79,7 +79,7 @@ var yetToVisit;
 //   return visitedNodesInOrder;
 // }
 
-export function Astar(grid, startNode, finishNode) {
+export function astar(grid, startNode, finishNode) {
   if (!startNode || !finishNode || startNode === finishNode) {
     return false;
   }
