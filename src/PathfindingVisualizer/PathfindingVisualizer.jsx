@@ -3,7 +3,7 @@ import Node from './Node/Node';
 import './PathfindingVisualizer.css';
 
 import {djikstra, getNodesInShortestPathOrder} from '../algorithms/djikstra';
-import {Astar} from '../algorithms/astar';
+import {astar} from '../algorithms/astar';
 
 const START_NODE_ROW = 10;
 const START_NODE_COL = 15;
@@ -50,15 +50,10 @@ export default class PathfindingVisualizer extends Component {
   }
 
   algorithmVisualizeButtonHandler() {
-    if (this.state.algorithm === 'djikstra') {
-      this.visualizeDijkstra();
-    }
-    if (this.state.algorithm === 'astar') {
-      this.visualizeAstar();
-    }
+    this.visualizeAlgorithm();
   }
 
-  animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder) {
+  animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder) {
     for (let i = 0; i <= visitedNodesInOrder.length; i++) {
       if (i === visitedNodesInOrder.length) {
         setTimeout(() => {
@@ -84,22 +79,21 @@ export default class PathfindingVisualizer extends Component {
     }
   }
 
-  visualizeDijkstra() {
+  visualizeAlgorithm() {
     const {grid} = this.state;
     const startNode = grid[START_NODE_ROW][START_NODE_COL];
     const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
-    const visitedNodesInOrder = djikstra(grid, startNode, finishNode);
-    const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
-    this.animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
-  }
+    var visitedNodesInOrder = [];
 
-  visualizeAstar() {
-    const {grid} = this.state;
-    const startNode = grid[START_NODE_ROW][START_NODE_COL];
-    const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
-    const visitedNodesInOrder = Astar(grid, startNode, finishNode);
+    if (this.state.algorithm === 'djikstra') {
+      visitedNodesInOrder = djikstra(grid, startNode, finishNode);
+    }
+    if (this.state.algorithm === 'astar') {
+      visitedNodesInOrder = astar(grid, startNode, finishNode);
+    }
+
     const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
-    this.animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
+    this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
   }
 
   render() {
