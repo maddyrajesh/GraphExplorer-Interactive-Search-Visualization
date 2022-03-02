@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import Node from './Node/Node';
-import {dijkstra, getNodesInShortestPathOrder} from '../algorithms/dijkstra';
-
 import './PathfindingVisualizer.css';
+
+import {djikstra, getNodesInShortestPathOrder} from '../algorithms/djikstra';
+import {Astar} from '../algorithms/astar';
 
 const START_NODE_ROW = 10;
 const START_NODE_COL = 15;
@@ -15,7 +16,13 @@ export default class PathfindingVisualizer extends Component {
     this.state = {
       grid: [],
       mouseIsPressed: false,
+      algorithm: 'djikstra',
     };
+
+    this.setSelectedAlgorithmHandler =
+      this.setSelectedAlgorithmHandler.bind(this);
+    this.algorithmVisualizeButtonHandler =
+      this.algorithmVisualizeButtonHandler.bind(this);
   }
 
   componentDidMount() {
@@ -36,6 +43,19 @@ export default class PathfindingVisualizer extends Component {
 
   handleMouseUp() {
     this.setState({mouseIsPressed: false});
+  }
+
+  setSelectedAlgorithmHandler(event) {
+    this.setState({...this.state, algorithm: event.target.value});
+  }
+
+  algorithmVisualizeButtonHandler() {
+    if (this.state.algorithm === 'djikstra') {
+      this.visualizeDijkstra();
+    }
+    if (this.state.algorithm === 'astar') {
+      this.visualizeAstar();
+    }
   }
 
   animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder) {
@@ -68,7 +88,16 @@ export default class PathfindingVisualizer extends Component {
     const {grid} = this.state;
     const startNode = grid[START_NODE_ROW][START_NODE_COL];
     const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
-    const visitedNodesInOrder = dijkstra(grid, startNode, finishNode);
+    const visitedNodesInOrder = djikstra(grid, startNode, finishNode);
+    const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
+    this.animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
+  }
+
+  visualizeAstar() {
+    const {grid} = this.state;
+    const startNode = grid[START_NODE_ROW][START_NODE_COL];
+    const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
+    const visitedNodesInOrder = Astar(grid, startNode, finishNode);
     const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
     this.animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
   }
@@ -78,8 +107,53 @@ export default class PathfindingVisualizer extends Component {
 
     return (
       <>
-        <button onClick={() => this.visualizeDijkstra()}>
-          Visualize Dijkstra's Algorithm
+        <div>
+          {' '}
+          <input
+            type="radio"
+            id="departure"
+            name="grid-selector"
+            value="departure"
+          />
+          <label htmlFor="departure">Departure</label>
+          <input
+            type="radio"
+            id="destination"
+            name="grid-selector"
+            value="destination"
+          />
+          <label htmlFor="departure">Destination</label>
+          <input
+            type="radio"
+            id="barrier"
+            name="grid-selector"
+            value="barrier"
+          />
+          <label htmlFor="departure">Barrier</label>
+        </div>
+
+        <div>
+          {' '}
+          <label htmlFor="algorithm">Choose an Algorithm:</label>
+          <select
+            name="algorithm"
+            id="algorithm"
+            onChange={this.setSelectedAlgorithmHandler}>
+            <option value="djikstra">Dkistra's Algorithm</option>
+            <option value="astar">A* Search</option>
+            <option value="greedybfs">Greedy Best-first Search</option>
+            <option value="swarm">Swarm Algorithm</option>
+            <option value="convergentswarm">Convergent Swarm Algorithm</option>
+            <option value="bidirectionalswarm">
+              Bidirectional Swarm Algorithm
+            </option>
+            <option value="bfs">Breadth-first Search</option>
+            <option value="dfs">Depth-first Search</option>
+          </select>
+        </div>
+
+        <button onClick={this.algorithmVisualizeButtonHandler}>
+          Visualize
         </button>
         <div className="grid">
           {grid.map((row, rowIdx) => {
