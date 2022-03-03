@@ -2,8 +2,14 @@ import React, {Component} from 'react';
 import Node from './Node/Node';
 import './PathfindingVisualizer.css';
 
+import MouseActionSelector from './components/MouseActionSelector';
+import AlgorithmSelector from './components/AlgorithmSelector';
+
 import {djikstra, getNodesInShortestPathOrder} from '../algorithms/djikstra';
 import {astar} from '../algorithms/astar';
+import {bfs} from '../algorithms/bfs';
+import {dfs} from '../algorithms/dfs';
+import {greedybfs} from '../algorithms/greedybfs';
 
 const START_NODE_ROW = 10;
 const START_NODE_COL = 15;
@@ -17,10 +23,13 @@ export default class PathfindingVisualizer extends Component {
       grid: [],
       mouseIsPressed: false,
       algorithm: 'djikstra',
+      mouseAction: 'barrier',
     };
 
     this.setSelectedAlgorithmHandler =
       this.setSelectedAlgorithmHandler.bind(this);
+    this.setSelectedMouseActionHandler =
+      this.setSelectedMouseActionHandler.bind(this);
     this.algorithmVisualizeButtonHandler =
       this.algorithmVisualizeButtonHandler.bind(this);
   }
@@ -45,8 +54,14 @@ export default class PathfindingVisualizer extends Component {
     this.setState({mouseIsPressed: false});
   }
 
-  setSelectedAlgorithmHandler(event) {
-    this.setState({...this.state, algorithm: event.target.value});
+  setSelectedMouseActionHandler(mouseAction) {
+    this.setState({...this.state, mouseAction: mouseAction});
+    console.log(mouseAction);
+  }
+
+  setSelectedAlgorithmHandler(algorithm) {
+    this.setState({...this.state, algorithm: algorithm});
+    console.log(algorithm);
   }
 
   algorithmVisualizeButtonHandler() {
@@ -84,14 +99,21 @@ export default class PathfindingVisualizer extends Component {
     const startNode = grid[START_NODE_ROW][START_NODE_COL];
     const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
     var visitedNodesInOrder = [];
-
     if (this.state.algorithm === 'djikstra') {
       visitedNodesInOrder = djikstra(grid, startNode, finishNode);
+    }
+    if (this.state.algorithm === 'greedybfs') {
+      visitedNodesInOrder = greedybfs(grid, startNode, finishNode);
     }
     if (this.state.algorithm === 'astar') {
       visitedNodesInOrder = astar(grid, startNode, finishNode);
     }
-
+    if (this.state.algorithm === 'bfs') {
+      visitedNodesInOrder = bfs(grid, startNode, finishNode);
+    }
+    if (this.state.algorithm === 'dfs') {
+      visitedNodesInOrder = dfs(grid, startNode, finishNode);
+    }
     const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
     this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
   }
@@ -101,50 +123,14 @@ export default class PathfindingVisualizer extends Component {
 
     return (
       <>
-        <div>
-          {' '}
-          <input
-            type="radio"
-            id="departure"
-            name="grid-selector"
-            value="departure"
-          />
-          <label htmlFor="departure">Departure</label>
-          <input
-            type="radio"
-            id="destination"
-            name="grid-selector"
-            value="destination"
-          />
-          <label htmlFor="departure">Destination</label>
-          <input
-            type="radio"
-            id="barrier"
-            name="grid-selector"
-            value="barrier"
-          />
-          <label htmlFor="departure">Barrier</label>
-        </div>
-
-        <div>
-          {' '}
-          <label htmlFor="algorithm">Choose an Algorithm:</label>
-          <select
-            name="algorithm"
-            id="algorithm"
-            onChange={this.setSelectedAlgorithmHandler}>
-            <option value="djikstra">Dkistra's Algorithm</option>
-            <option value="astar">A* Search</option>
-            <option value="greedybfs">Greedy Best-first Search</option>
-            <option value="swarm">Swarm Algorithm</option>
-            <option value="convergentswarm">Convergent Swarm Algorithm</option>
-            <option value="bidirectionalswarm">
-              Bidirectional Swarm Algorithm
-            </option>
-            <option value="bfs">Breadth-first Search</option>
-            <option value="dfs">Depth-first Search</option>
-          </select>
-        </div>
+        <MouseActionSelector
+          selectedMouseAction={this.state.mouseAction}
+          onMouseActionSelect={this.setSelectedMouseActionHandler}
+        />
+        <AlgorithmSelector
+          selectedAlgorithm={this.state.algorithm}
+          onAlgorithmSelect={this.setSelectedAlgorithmHandler}
+        />
 
         <button onClick={this.algorithmVisualizeButtonHandler}>
           Visualize
