@@ -10,11 +10,12 @@ import {astar} from '../algorithms/astar';
 import {bfs} from '../algorithms/bfs';
 import {dfs} from '../algorithms/dfs';
 import {greedybfs} from '../algorithms/greedybfs';
+import {simpleMaze} from '../mazes/SimpleMaze';
 
-const START_NODE_ROW = 10;
-const START_NODE_COL = 15;
-const FINISH_NODE_ROW = 10;
-const FINISH_NODE_COL = 35;
+let START_NODE_ROW = 10;
+let START_NODE_COL = 15;
+let FINISH_NODE_ROW = 10;
+let FINISH_NODE_COL = 35;
 
 export default class PathfindingVisualizer extends Component {
   constructor() {
@@ -32,6 +33,8 @@ export default class PathfindingVisualizer extends Component {
       this.setSelectedMouseActionHandler.bind(this);
     this.algorithmVisualizeButtonHandler =
       this.algorithmVisualizeButtonHandler.bind(this);
+    this.RandomizeWallButtonHandler =
+      this.RandomizeWallButtonHandler.bind(this);
   }
 
   componentDidMount() {
@@ -40,14 +43,30 @@ export default class PathfindingVisualizer extends Component {
   }
 
   handleMouseDown(row, col) {
-    const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
-    this.setState({grid: newGrid, mouseIsPressed: true});
+    if (this.state.mouseAction === 'barrier') {
+      const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
+      this.setState({grid: newGrid, mouseIsPressed: true});
+    } else if (this.state.mouseAction === 'departure') {
+      const newGrid = getNewGridWithStartToggled(this.state.grid, row, col);
+      this.setState({grid: newGrid, mouseIsPressed: true});
+    } else {
+      const newGrid = getNewGridWithFinishToggled(this.state.grid, row, col);
+      this.setState({grid: newGrid, mouseIsPressed: true});
+    }
   }
 
   handleMouseEnter(row, col) {
     if (!this.state.mouseIsPressed) return;
-    const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
-    this.setState({grid: newGrid});
+    if (this.state.mouseAction === 'barrier') {
+      const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
+      this.setState({grid: newGrid});
+    } else if (this.state.mouseAction === 'departure') {
+      const newGrid = getNewGridWithStartToggled(this.state.grid, row, col);
+      this.setState({grid: newGrid});
+    } else {
+      const newGrid = getNewGridWithFinishToggled(this.state.grid, row, col);
+      this.setState({grid: newGrid});
+    }
   }
 
   handleMouseUp() {
@@ -62,6 +81,41 @@ export default class PathfindingVisualizer extends Component {
   setSelectedAlgorithmHandler(algorithm) {
     this.setState({...this.state, algorithm: algorithm});
     console.log(algorithm);
+  }
+
+  RandomizeWallButtonHandler() {
+    const grid = clearGridHelper();
+    const startNode = grid[START_NODE_ROW][START_NODE_COL];
+    const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
+    var nodesToBeWalls = null;
+    nodesToBeWalls = simpleMaze(grid, startNode, finishNode);
+    if (nodesToBeWalls !== null) {
+      this.animateWalls(nodesToBeWalls, grid);
+    }
+  }
+
+  async animateWalls(nodesToBeWalls, grid) {
+    const promises = [];
+    for (let i = 0; i <= nodesToBeWalls.length; i++) {
+      promises.push(
+        new Promise(resolve => {
+          setTimeout(() => {
+            const node = nodesToBeWalls[i];
+            if (node && !node.isStart && !node.isFinish && node.isWall) {
+              document.getElementById(
+                `node-${node.row}-${node.col}`,
+              ).className = 'node node-wall';
+            }
+
+            if (i === nodesToBeWalls.length - 1) {
+              this.setState({grid: grid});
+            }
+            resolve();
+          }, 10 * i);
+        }),
+      );
+    }
+    await Promise.all(promises);
   }
 
   algorithmVisualizeButtonHandler() {
@@ -131,10 +185,15 @@ export default class PathfindingVisualizer extends Component {
           selectedAlgorithm={this.state.algorithm}
           onAlgorithmSelect={this.setSelectedAlgorithmHandler}
         />
-
+        <div>
+          <button onClick={this.RandomizeWallButtonHandler}>
+            Randomize Wall
+          </button>
+        </div>
         <button onClick={this.algorithmVisualizeButtonHandler}>
           Visualize
         </button>
+
         <div className="grid">
           {grid.map((row, rowIdx) => {
             return (
@@ -178,6 +237,33 @@ const getInitialGrid = () => {
   return grid;
 };
 
+function clearGridHelper() {
+  const grid = [];
+  for (let row = 0; row < 20; row++) {
+    const currentRow = [];
+
+    for (let col = 0; col < 50; col++) {
+      var node = createNode(col, row);
+      node.isWall = false;
+
+      if (node && !node.isFinish && !node.isStart) {
+        document.getElementById(`node-${node.row}-${node.col}`).className =
+          'node';
+      } else if (node.isFinish) {
+        document.getElementById(`node-${node.row}-${node.col}`).className =
+          'node node-finish';
+      } else if (node.isStart) {
+        document.getElementById(`node-${node.row}-${node.col}`).className =
+          'node node-start';
+      }
+
+      currentRow.push(node);
+    }
+    grid.push(currentRow);
+  }
+  return grid;
+}
+
 const createNode = (col, row) => {
   return {
     col,
@@ -197,6 +283,46 @@ const getNewGridWithWallToggled = (grid, row, col) => {
   const newNode = {
     ...node,
     isWall: !node.isWall,
+  };
+  newGrid[row][col] = newNode;
+  return newGrid;
+};
+
+const getNewGridWithStartToggled = (grid, row, col) => {
+  let newGrid = grid.slice();
+  let node = newGrid[START_NODE_ROW][START_NODE_COL];
+  let newNode = {
+    ...node,
+    isStart: false,
+  };
+  newGrid[START_NODE_ROW][START_NODE_COL] = newNode;
+
+  node = newGrid[row][col];
+  START_NODE_ROW = row;
+  START_NODE_COL = col;
+  newNode = {
+    ...node,
+    isStart: true,
+  };
+  newGrid[row][col] = newNode;
+  return newGrid;
+};
+
+const getNewGridWithFinishToggled = (grid, row, col) => {
+  let newGrid = grid.slice();
+  let node = newGrid[FINISH_NODE_ROW][FINISH_NODE_COL];
+  let newNode = {
+    ...node,
+    isFinish: false,
+  };
+  newGrid[FINISH_NODE_ROW][FINISH_NODE_COL] = newNode;
+
+  node = newGrid[row][col];
+  FINISH_NODE_ROW = row;
+  FINISH_NODE_COL = col;
+  newNode = {
+    ...node,
+    isFinish: true,
   };
   newGrid[row][col] = newNode;
   return newGrid;
