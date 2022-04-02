@@ -23,7 +23,7 @@ const MouseActionSelector = props => {
         name="grid-selector"
         value="destination"
       />
-      <label htmlFor="departure">Destination</label>
+      <label htmlFor="destination">Destination</label>
       <input
         type="radio"
         id="barrier"
@@ -31,7 +31,7 @@ const MouseActionSelector = props => {
         value="barrier"
         defaultChecked
       />
-      <label htmlFor="departure">Barrier</label>
+      <label htmlFor="barrier">Barrier</label>
     </div>
   );
 };

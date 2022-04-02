@@ -17,11 +17,12 @@ const AlgorithmSelector = props => {
         <option value="djikstra">Dkistra's Algorithm</option>
         <option value="astar">A* Search</option>
         <option value="greedybfs">Greedy Best-first Search</option>
-        {/* <option value="swarm">Swarm Algorithm</option>
+        <option value="swarm">Swarm Algorithm</option>
         <option value="convergentswarm">Convergent Swarm Algorithm</option>
-        <option value="bidirectionalswarm">
-          Bidirectional Swarm Algorithm */}
-        {/* </option> */}
+        <option value="iddfs">Iterative Deepening Depth First Search</option>
+        {/* <option value="bidirectionalswarm">
+          Bidirectional Swarm Algorithm
+        </option> */}
         <option value="bfs">Breadth-first Search</option>
         <option value="dfs">Depth-first Search</option>
       </select>

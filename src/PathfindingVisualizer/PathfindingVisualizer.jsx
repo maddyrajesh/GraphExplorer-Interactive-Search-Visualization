@@ -10,7 +10,10 @@ import {astar} from '../algorithms/astar';
 import {bfs} from '../algorithms/bfs';
 import {dfs} from '../algorithms/dfs';
 import {greedybfs} from '../algorithms/greedybfs';
+import {swarm} from '../algorithms/swarm';
 import {simpleMaze} from '../mazes/SimpleMaze';
+import {convergentswarm} from '../algorithms/convergentswarm';
+import {IDDFS} from '../algorithms/iddfs';
 
 let START_NODE_ROW = 10;
 let START_NODE_COL = 15;
@@ -167,6 +170,15 @@ export default class PathfindingVisualizer extends Component {
     }
     if (this.state.algorithm === 'dfs') {
       visitedNodesInOrder = dfs(grid, startNode, finishNode);
+    }
+    if (this.state.algorithm === 'swarm') {
+      visitedNodesInOrder = swarm(grid, startNode, finishNode);
+    }
+    if (this.state.algorithm === 'convergentswarm') {
+      visitedNodesInOrder = convergentswarm(grid, startNode, finishNode);
+    }
+    if (this.state.algorithm === 'iddfs') {
+      visitedNodesInOrder = IDDFS(grid, startNode, finishNode);
     }
     const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
     this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);

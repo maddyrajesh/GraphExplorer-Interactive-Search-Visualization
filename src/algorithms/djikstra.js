@@ -1,5 +1,3 @@
-//run dijkstra's algorithm
-//TODO use a min heap for unvisitedNodes!!!!
 import Heap from 'heap';
 
 var heap;
@@ -143,59 +141,3 @@ function arrayContainsGivenNode(array, node) {
   }
   return false;
 }
-
-// //ASSUME: all nodes in the grid have a distance of infinity to begin with
-// function dijkstraCommented(grid, startNode, finishNode) {
-//   //check for illegal inputs
-//   if (!grid || !startNode || !finishNode || startNode === finishNode) {
-//     return false;
-//   }
-
-//   //create a priority queue of nodes where heap.pop() is the node with the smallest distance
-//   var heap = new Heap(function(a, b) {
-//     return a.distance - b.distance;
-//   });
-
-//   const visitedNodesInOrder = [];
-
-//   //initialize the start nodes distance to 0
-//   startNode.distance = 0;
-
-//   //add all the nodes in the grid to the heap
-//   for (const row of grid) {
-//     for (const node of row) {
-//       heap.push(node);
-//     }
-//   }
-//   //create a min-heap
-//   heap.heapify();
-
-//   while (heap.length !== 0) {
-//     const closestNode = heap.pop();
-
-//     //if the node is a wall, repeat the loop again
-//     if (closestNode.isWall) continue;
-
-//     //if the closest node has a distance of infinity, this means there is no shortest path to the finish node
-//     if (closestNode.distance === Infinity) return visitedNodesInOrder;
-
-//     //mark the node as visited and add it to the list of visited nodes
-//     closestNode.visited = true;
-//     visitedNodesInOrder.push(closestNode);
-
-//     //if we arrived at the finish node, return all the nodes we have visited
-//     if (closestNode === finishNode) return visitedNodesInOrder;
-
-//     //get all the neighbors surrounding the node
-//     const unvisitedNeighbors = getUnvisitedNeighbors(closestNode, grid);
-
-//     //for all unvisited neighbors update their distances respectively
-//     for (const neighbor of unvisitedNeighbors) {
-//       if (neighbor.distance > closestNode.distance + 1) {
-//         neighbor.distance = closestNode.distance + 1;
-//         neighbor.previousNode = closestNode;
-//         heap.updateItem(neighbor);
-//       }
-//     }
-//   }
-// }

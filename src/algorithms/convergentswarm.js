@@ -2,7 +2,7 @@ import {getUnvisitedNeighbors} from './djikstra';
 import Heap from 'heap';
 var yetToVisit;
 
-export function astar(grid, startNode, finishNode) {
+export function convergentswarm(grid, startNode, finishNode) {
   if (!startNode || !finishNode || startNode === finishNode) {
     return false;
   }
@@ -49,7 +49,9 @@ export function astar(grid, startNode, finishNode) {
 
         if (currNode.gCost + 1 < neighbor.gCost) {
           neighbor.hCost = hCost;
-          neighbor.gCost = currNode.gCost + 1;
+          neighbor.gCost = currNode.gCost + Math.pow(hCost, 2);
+          // neighbor.gCost =
+          //   Math.random() * (currNode.gCost + Math.pow(hCost, 2));
           neighbor.fCost = neighbor.hCost + neighbor.gCost;
           neighbor.previousNode = currNode;
           yetToVisit.updateItem(neighbor);
